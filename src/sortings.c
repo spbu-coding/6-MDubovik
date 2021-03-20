@@ -1,152 +1,161 @@
 #include "sortings.h"
+#include <string.h>
+#include <stdlib.h>
 
-void bubbleSort(char** lines, int size, int cmp)
+#define ASCII_CONST 128
+
+void swap(char **str1, char **str2)
 {
-	int i, j;
-	char tmp[MAX_INPUT_STRING_SIZE];
-	for (i = 0; i < size; i++)
-	{
-		for (j = 0; j < size - i - 1; j++)
-		{
-			if (strcmp(lines[j], lines[j + 1]) > 0 && cmp == 1 ||
-				strcmp(lines[j], lines[j + 1]) < 0 && cmp == 0)
-			{
-				strcpy(tmp, lines[j]);
-				strcpy(lines[j], lines[j + 1]);
-				strcpy(lines[j + 1], tmp);
-			}
-		}
-	}
+    char *tmp = *str1;
+    *str1 = *str2;
+    *str2 = tmp;
 }
 
-void insertionSort(char** lines, int size, int cmp)
+array_size_t get_max_length(strings_array_t strings, size_t strings_count)
 {
-	int i, j;
-	char tmp[MAX_INPUT_STRING_SIZE];
-	for (i = 1; i < size; i++)
-	{
-		strcpy(tmp, lines[i]);
-		j = i - 1;
-		while (j >= 0 && (strcmp(lines[j], tmp) > 0 && cmp == 1 ||
-			strcmp(lines[j], tmp) < 0 && cmp == 0))
-		{
-			strcpy(lines[j + 1], lines[j]);
-			j--;
-		}
-		strcpy(lines[j + 1], tmp);
-	}
+    size_t max = strlen(strings[0]);
+    for (size_t i = 0; i < strings_count; ++i)
+    {
+        size_t tmp_size = strlen(strings[i]);
+        if (tmp_size > max)
+        {
+            max = tmp_size;
+        }
+    }
+    return max;
 }
 
-void merge(char** lines, int left, int middle, int right, int cmp)
+void count_sort(strings_array_t array, size_t size, size_t k, comparator_func_t cmp)
 {
-	int i, j, k;
-	int n1 = middle - left + 1;
-	int n2 = right - middle;
+    strings_array_t tmp_array = malloc(sizeof(char *) * size);
+    int *ascii_array = malloc(sizeof(int) * ASCII_CONST);
+    for (int i = 0; i < ASCII_CONST; ++i)
+        ascii_array[i] = 0;
+    for (size_t i = 0; i < size; ++i)
+    {
+        int tmp = k < strlen(array[i]) ? (int)(unsigned char)array[i][k] + 1 : 0;
+        ascii_array[tmp]++;
+    }
+    if (cmp("a", "b") < 0)
+    {
+        for (int i = 1; i < ASCII_CONST; ++i)
+            ascii_array[i] += ascii_array[i - 1];
+    } else
+    {
+        for (int i = ASCII_CONST - 2; i >= 0; --i)
+            ascii_array[i] += ascii_array[i + 1];
 
-	char** L = malloc(sizeof(char*) * n1);
-	char** R = malloc(sizeof(char*) * n2);
-
-	for (i = 0; i < n1; i++)
-	{
-		L[i] = malloc(sizeof(char) * MAX_INPUT_STRING_SIZE);
-		strcpy(L[i], lines[left + i]);
-	}
-	for (i = 0; i < n2; i++)
-	{
-		R[i] = malloc(sizeof(char) * MAX_INPUT_STRING_SIZE);
-		strcpy(R[i], lines[middle + i + 1]);
-	}
-
-	i = 0;
-	j = 0;
-	k = left;
-
-	while (i < n1 && j < n2)
-	{
-		if ((strcmp(L[i], R[j]) < 0 && cmp == 1 ||
-			strcmp(L[i], R[j]) > 0 && cmp == 0))
-		{
-			strcpy(lines[k], L[i]);
-			i++;
-		}
-		else
-		{
-			strcpy(lines[k], R[j]);
-			j++;
-		}
-		k++;
-	}
-
-	while (i < n1)
-	{
-		strcpy(lines[k], L[i]);
-		i++;
-		k++;
-	}
-
-	while (j < n2)
-	{
-		strcpy(lines[k], R[j]);
-		j++;
-		k++;
-	}
-
-
-	for (i = 0; i < n1; i++)
-		free(L[i]);
-	for (i = 0; i < n2; i++)
-		free(R[i]);
-	free(L);
-	free(R);
+    }
+    for (int i = (int)size - 1; i >= 0; --i)
+    {
+        tmp_array[ascii_array[k < strlen(array[i]) ? (int)(unsigned char)array[i][k] + 1 : 0] - 1] = array[i];
+        ascii_array[k < strlen(array[i]) ? (int)(unsigned char)array[i][k] + 1 : 0]--;
+    }
+    for (size_t i = 0; i < size; ++i)
+    {
+        array[i] = tmp_array[i];
+    }
+    free(tmp_array);
+    free(ascii_array);
 }
 
-void mSort(char** lines, int left, int right, int cmp)
+void bubble(strings_array_t array, array_size_t size, comparator_func_t cmp)
 {
-	if (left >= right)
-		return;
-	int middle = (left + right - 1) / 2;
-	mSort(lines, left, middle, cmp);
-	mSort(lines, middle + 1, right, cmp);
-	merge(lines, left, middle, right, cmp);
+    for (size_t i = 0; i < size; ++i)
+        for (size_t j = i; j < size; ++j)
+            if (cmp(array[j], array[i]) < 0)
+                swap(&array[i], &array[j]);
 }
 
-void mergeSort(char** lines, int size, int cmp)
+void insertion(strings_array_t array, array_size_t size, comparator_func_t cmp)
 {
-	mSort(lines, 0, size - 1, cmp);
+    for (array_size_t i = 1; i < size; i++)
+    {
+        char *tmp = array[i];
+        for (int j = (int)i - 1; j >= 0; j--)
+        {
+            if (cmp(array[j], tmp) < 0)
+                break;
+            array[j + 1] = array[j];
+            array[j] = tmp;
+        }
+    }
 }
 
-void quickSort(char** lines, int size, int cmp)
+void merge(strings_array_t array, array_size_t size, comparator_func_t cmp)
 {
-	int i, begin, end;
-	char mid[MAX_INPUT_STRING_SIZE];
-	char tmp[MAX_INPUT_STRING_SIZE];
-	strcpy(mid, lines[size / 2]);
+    array_size_t step = 1;
+    strings_array_t  temp = malloc(size * sizeof(char *));
+    while (step < size)
+    {
+        array_size_t index = 0;
+        array_size_t left = 0;
+        array_size_t middle = left + step;
+        array_size_t right = left + step * 2;
+        do
+        {
+            middle = middle < size ? middle : size;
+            right = right < size ? right : size;
+            array_size_t i1 = left, i2 = middle;
+            for (; i1 < middle && i2 < right; )
+                if (cmp(array[i1], array[i2]) < 0)
+                    temp[index++] = array[i1++];
+                else
+                    temp[index++] = array[i2++];
+            while (i1 < middle)
+                temp[index++] = array[i1++];
+            while (i2 < right)
+                temp[index++] = array[i2++];
+            left += step * 2;
+            middle += step * 2;
+            right += step * 2;
+        } while (left < size);
+        for (array_size_t i = 0; i < size; i++)
+            array[i] = temp[i];
+        step *= 2;
+    }
+    free(temp);
+}
 
-	if (size < 2)
-		return;
-	begin = 0;
-	end = size - 1;
-	while (begin <= end)
-	{
-		while ((strcmp(lines[begin], mid) < 0 && cmp == 1 ||
-			strcmp(lines[begin], mid) > 0 && cmp == 0))
-			begin++;
-		while ((strcmp(lines[end], mid) > 0 && cmp == 1 ||
-			strcmp(lines[end], mid) < 0 && cmp == 0))
-			end--;
-		if (begin <= end)
-		{
-			if (begin != end)
-			{
-				strcpy(tmp, lines[begin]);
-				strcpy(lines[begin], lines[end]);
-				strcpy(lines[end], tmp);
-			}
-			begin++;
-			end--;
-		}
-	}
-	quickSort(lines, end + 1, cmp);
-	quickSort(lines + begin, size - begin, cmp);
-	return 0;
+void quick_split(strings_array_t array, unsigned int begin, unsigned int end, comparator_func_t cmp)
+{
+    while (begin < end)
+    {
+        if ((array[begin] <= array[(begin + end - 1) / 2] && array[(begin + end - 1) / 2] <= array[end - 1]) ||
+            (array[end - 1] <= array[(begin + end - 1) / 2] && array[(begin + end - 1) / 2] <= array[begin]))
+            swap(&array[begin], &array[(begin + end - 1) / 2]);
+        else if ((array[begin] <= array[end - 1] && array[end - 1] <= array[(begin + end - 1) / 2]) ||
+                 (array[(begin + end - 1) / 2] <= array[end - 1] && array[end - 1] <= array[begin]))
+            swap(&array[begin], &array[end - 1]);
+        unsigned int left = begin, middle = begin + 1, right = end;
+        for (unsigned int i = 0; i < end - begin - 1; i++)
+        {
+            const int cmp_result = cmp(array[middle], array[begin]);
+            if (cmp_result < 0) {
+                left++;
+                swap(&array[middle], &array[left]);
+                middle++;
+            } else if (cmp_result > 0) {
+                right--;
+                swap(&array[middle], &array[right]);
+            } else
+                middle++;
+        }
+        swap(&array[begin], &array[left]);
+        quick_split(array, begin, left, cmp);
+        begin = right;
+    }
+}
+
+void quick(strings_array_t array, array_size_t size, comparator_func_t cmp)
+{
+    quick_split(array, 0, size, cmp);
+}
+
+void radix(strings_array_t array, array_size_t size, comparator_func_t cmp)
+{
+    size_t max = get_max_length(array, size);
+    for (size_t digit = max; digit > 0; digit--) {
+        count_sort(array, size, digit - 1, cmp);
+    }
 }
