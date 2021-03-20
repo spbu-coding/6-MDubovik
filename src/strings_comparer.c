@@ -20,7 +20,7 @@ int des_cmp(const char *str1, const char *str2) {
     return strcmp(str2, str1);
 }
 
-int set_arguments_value(int argc, char **argv, int *strings_num, char *in_file, char *out_file,
+int set_arguments_value(int argc, char **argv, array_size_t *strings_num, char *in_file, char *out_file,
                         sort_func_t *sortFunc, comparator_func_t *cmp)
 {
     if (argc != 6)
