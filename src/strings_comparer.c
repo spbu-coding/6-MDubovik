@@ -28,7 +28,7 @@ int set_arguments_value(int argc, char **argv, int *strings_num, char *in_file, 
     if (!is_num(argv[1]))
         return -1;
     *strings_num = (int)strtoll(argv[1], NULL, 10);
-    if ((int)strings_num < 0)
+    if (*strings_num < 0)
         return -1;
     strncpy(in_file, argv[2], 100);
     strncpy(out_file, argv[3], 100);
@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
     strings = malloc(sizeof(char *) * strings_num);
     if (strings == NULL)
         return -1;
-    for (int i = 0; i < strings_num; ++i)
+    for (array_size_t i = 0; i < strings_num; ++i)
         strings[i] = malloc(sizeof(char) * MAX_INPUT_STRING_SIZE);
     int reading_result = read_strings_from_file(in_file, strings, strings_num);
     if (reading_result != 0)
