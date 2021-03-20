@@ -28,7 +28,7 @@ int set_arguments_value(int argc, char **argv, int *strings_num, char *in_file, 
     if (!is_num(argv[1]))
         return -1;
     *strings_num = (int)strtoll(argv[1], NULL, 10);
-    if (strings_num < 0)
+    if ((int)strings_num < 0)
         return -1;
     strncpy(in_file, argv[2], 100);
     strncpy(out_file, argv[3], 100);
@@ -99,7 +99,7 @@ int write_strings_to_file(const char *filename, strings_array_t strings, int str
 
 int main(int argc, char *argv[])
 {
-    int strings_num;
+    array_size_t strings_num;
     char in_file[100];
     char out_file[100];
     sort_func_t sortFunc;
