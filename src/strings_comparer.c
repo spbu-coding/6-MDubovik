@@ -28,7 +28,7 @@ int set_arguments_value(int argc, char **argv, array_size_t *strings_num, char *
     if (!is_num(argv[1]))
         return -1;
     *strings_num = (int)strtoll(argv[1], NULL, 10);
-    if (*strings_num < 0)
+    if ((int)(*strings_num) < 0)
         return -1;
     strncpy(in_file, argv[2], 100);
     strncpy(out_file, argv[3], 100);
