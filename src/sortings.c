@@ -11,12 +11,12 @@ void swap(char **str1, char **str2)
     *str2 = tmp;
 }
 
-array_size_t get_max_length(strings_array_t strings, size_t strings_count)
+array_size_t get_max_length(strings_array_t *strings, size_t strings_count)
 {
-    size_t max = strlen(strings[0]);
+    size_t max = strlen((*strings)[0]);
     for (size_t i = 0; i < strings_count; ++i)
     {
-        size_t tmp_size = strlen(strings[i]);
+        size_t tmp_size = strlen((*strings)[i]);
         if (tmp_size > max)
         {
             max = tmp_size;
